@@ -16,6 +16,7 @@ Window::Window(const char *title, int width, int height) {
 	if (!glfwInit()) {
 		glfwTerminate();
 		std::cout << "GLFW: failed to init" << std::endl;
+
 		return;
 	}
 	glfwSetErrorCallback(error_callback);
