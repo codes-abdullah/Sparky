@@ -13,21 +13,20 @@ Window::Window(const char *title, int width, int height) {
 	this->title = title;
 	this->width = width;
 	this->height = height;
-	if(!glfwInit()){
+	if (!glfwInit()) {
 		glfwTerminate();
 		std::cout << "GLFW: failed to init" << std::endl;
 		return;
 	}
 	glfwSetErrorCallback(error_callback);
 	this->window = glfwCreateWindow(width, height, title, NULL, NULL);
-	if(!window){
+	if (!window) {
 		glfwTerminate();
 		std::cout << "GLFW: failed to create window" << std::endl;
 		return;
 	}
 
-
-	glfwMakeContextCurrent(this->window)
+	glfwMakeContextCurrent(this->window);
 
 }
 
@@ -36,19 +35,18 @@ Window::~Window() {
 }
 
 bool Window::isClosed() const {
-	return false;
+	return glfwWindowShouldClose(this->window);
 }
 
 void Window::update() {
-
+	glfwSwapBuffers(this->window);
+	glfwPollEvents();
 }
 void Window::clear() const {
 
 }
 
+} //graphics
 
-
-}//graphics
-
-}//sparky
+} //sparky
 
