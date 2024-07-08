@@ -2,7 +2,6 @@
 //#include "graphics/Window.h"
 //#include "logs/Logger.h"
 #include<iostream>
-int myvar = 10;
 
 int main(int argc, char **argv) {
 //	logs::Logger::info("aaaaaaaxxxa");

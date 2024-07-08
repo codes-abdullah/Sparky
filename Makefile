@@ -71,7 +71,7 @@ IDE:=ECLIPSE
 CXX := g++
 INCLUDE_LIBRARY := glfw3 glew
 CXXFLAGS_DEBUG := -g -Wall -Wextra -Wno-unused-parameter 
-CXXFLAGS_BUILD := -O0 -Wall -Wextra -Wno-unused-parameter
+CXXFLAGS_BUILD := -O0 -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable
 ################
 ################
 ################

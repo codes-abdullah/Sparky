@@ -1,11 +1,7 @@
-/*
- * Car.cpp
- *
- *  Created on: Jul 8, 2024
- *      Author: abod
- */
 
 
+class Car{
+public:
+	int myvar = 110;
+};
 
-
-int myvar = 40;
