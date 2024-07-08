@@ -9,9 +9,6 @@
 
 namespace logs {
 
-Logger::Logger() {
-
-}
 
 Logger::~Logger() {
 
@@ -28,6 +25,7 @@ void Logger::info(const char *msg) {
 void Logger::debug(const char *msg) {
 	this->log(logs::LogLevel::DEBUG, msg);
 }
+
 
 
 
