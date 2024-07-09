@@ -73,9 +73,9 @@
 
 ################# for IDE's, use ECLIPSE or CODE_BLOCKS
 #IDE:=CODE_BLOCKS
-#IDE:=ECLIPSE
+IDE:=ECLIPSE
 ################# for non-IDE's, specify NO_IDE, either run or debug
-NO_IDE:=run
+#NO_IDE:=run
 #NO_IDE:=debug
 ################
 CXX := g++
@@ -273,6 +273,28 @@ endif
 endif
 endif
 
+
+#NO_IDE and BUILD_MODE
+ifneq ($(NO_IDE),)
+ifneq ($(BUILD_MODE),)
+	$(error NO_IDE=$(NO_IDE) and BUILD_MODE=$(BUILD_MODE) which is Eclipse special variable, are you executing from Eclipse IDE ???, if yes please, comment NO_IDE and uncomment IDE=ECLIPSE for correct building)
+endif
+endif
+
+#NO_IDE and BUILD_MODE
+ifneq ($(NO_IDE),)
+ifneq ($(BUILD_MODE),)
+	$(error NO_IDE=$(NO_IDE) and BUILD_MODE=$(BUILD_MODE) which is Eclipse special variable, are you executing from Eclipse IDE ???, if yes please, comment NO_IDE and uncomment IDE=ECLIPSE for correct building)
+endif
+endif
+
+
+#NO_IDE and Release/Debug/cleanRelease/cleanDebug
+ifneq ($(NO_IDE),)
+ifeq ($(MAKECMDGOALS),$(filter $(MAKECMDGOALS),Release Debug cleanRelease cleanDebug))
+	$(error NO_IDE=$(NO_IDE) and targets=$(MAKECMDGOALS) which are Code::blocks special targets, are you executing from Code::blocks IDE ???, if yes please, comment NO_IDE and uncomment IDE=CODE_BLOCKS for correct building)
+endif
+endif
 
 test: check
 	@echo "IDE: $(IDE)"

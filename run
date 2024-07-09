@@ -1,2 +1,0 @@
-#!/bin/bash
- clear && make -j all && clear && /home/abod/.local/bin/eclipse/cpp/2024-06/workspace/Sparky/build/Sparky

@@ -3,6 +3,7 @@
 //#include "logs/Logger.h"
 #include<iostream>
 #include "Car.cpp"
+int Car::myvar;
 int main(int argc, char **argv) {
 //	logs::Logger::info("aaaaaaaxxxa");
 
@@ -13,13 +14,13 @@ int main(int argc, char **argv) {
 //	}
 
 	Car c;
-	c.myvar = 99;
-	c.print();
+	Car::myvar = 99;
 
 	Car b;
-	b.myvar = 3;
+	Car::myvar = 3;
 
 
+	c.print();
 	b.print();
 
 
