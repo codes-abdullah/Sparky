@@ -1,7 +1,12 @@
+#include <iostream>
 
-
-class Car{
+struct Car{
 public:
-	int myvar = 110;
+	static int myvar;
+	void print(){
+		std::cout<<myvar<<std::endl;
+	}
 };
 
+
+int Car::myvar;

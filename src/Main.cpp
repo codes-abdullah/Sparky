@@ -2,7 +2,7 @@
 //#include "graphics/Window.h"
 //#include "logs/Logger.h"
 #include<iostream>
-
+#include "Car.cpp"
 int main(int argc, char **argv) {
 //	logs::Logger::info("aaaaaaaxxxa");
 
@@ -12,6 +12,15 @@ int main(int argc, char **argv) {
 //		w.update();
 //	}
 
-	std::cout<<myvar<<std::endl;
+	Car c;
+	c.myvar = 99;
+	c.print();
+
+	Car b;
+	b.myvar = 3;
+
+
+	b.print();
+
 
 }

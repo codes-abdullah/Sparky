@@ -1,31 +1,31 @@
 ###################################################
 #	
 #	Author : Abdullah Aldokhi
-#
-# 	Usage: (Tested on Linux systems)
+#	Github: https://github.com/codes-abdullah
+# 	(Tested on Linux systems)
 #	
 #	While learning C++, I struggled with:
 #	- Adding libraries manually to Eclipse CDT, which is nightmare.
 #	- Eclipse CDT does not generate Makefile with new projects.
 #	- I’ve been spoiled by Java and it’s tools for long time, debugging was a click, never thought
 #	 that debugging in C++ requires different flags, which means different binary, which means
-#	different launch location to make Eclipse CDT and Code::Blocks debug the app interactively.
+#	different launch location to make IDE's such as Eclipse CDT and Code::Blocks able to debug the app interactively.
 #	- In Java, we had packages which organized our projects in a fancy way, in C++, most of the
 #	source projects I’ve seen used one single directory for all source files, and probably another
-#	far-away directory for header files, so source nested files/dirs are very uncommon in C++.
+#	far-away directory for header files (in project), so source nested files/dirs are not common in C++.
 #	
-#	As Java spoiled and well organized developer, I could not leave it like this
-#	Which force me to learn gnu-make that I was never ever wanted to work with, hoa!!
+#	As Java spoiled and well organized developer, I could not like my projects to be missy
+#	which force me to learn gnu-make which I was never ever wanted to work with, hoa!!
 #	
 #	
-#	So:
+#	So I spent sometime learning the basics of gnu-make and cameup with this script file.
 #	This file has full support for 2 modes to resolve all mentioned cons above:
 #	
 #	- Declare a variable named NO_IDE with value of ‘run’ or ‘debug’ for regular projects on any
 #	text editor application (remove single quotes in values)
 #	- Declare a variable named IDE with value of ‘ECLIPSE’ or ‘CODE_BLOCKS’ for Eclipse
 #	CDT or Code::Blocks projects accordingly (remove single quotes in values)
-#	- You can’t have both to be declared
+#	- You can’t have both to be declared (IDE and NO_IDE)
 #	
 #
 #	Futures:
@@ -40,17 +40,27 @@
 #	‘CXXFLAGS_DEBUG’
 #
 #	Targets:
-#	- The main build target is ‘all’, and for cleaning is ‘clean’, they both relays on
-#	current build type, e.g: if NO_IDE=debug, ‘clean’ will clean only debug directory
-#	- Eclipse CDT will invoke first target in the file, which is ‘all’, and for clean will invoke ‘clean’
-#	- Eclipse CDT have special variable called BUILD_MODE, which can be used to determent
-#	if eclipse requiring build or debug modes, that will be handled by this Makefile internally.
-#	- Code::blocks IDE has special named targets by default, ‘Release’ ‘cleanRelease’
-#	‘Debug’ and ‘cleanDebug’.
-#	- NO_IDE mode will invoke first target by default.
+#	- [all]: The main and first (default) build target, for IDE = ECLIPSE or NO_IDE = run/debug, this can be used by default for building
+#	- [clean]: the main clean target, for IDE = ECLIPSE or NO_IDE = run/debug, this can be used by default, 
+#	the clean target is build-context based, e.g if NO_IDE = debug, clean target will clean debug directory only,
+#	also, if IDE = ECLIPSE and BUILD_MODE = run, will clean build/default directory only
+#	and for IDE = CODE_BLOCKS, and MAKECMDGOALS = cleanRelease, will clean bin/Release and obj/Release only
+#	- [Release]: Is a special target for IDE = CODE_BLOCKS mode, it will build the project in bin/Release and obj/Release
+#	- [Debug]: Is a special target for IDE = CODE_BLOCKS mode, it will build the project in bin/Debug and obj/Debug
+#	- [cleanRelease]: Is a special target for IDE = CODE_BLOCKS mode, it will clean bin/Release and Obj/release
+#	- [cleanDebug]: Is a special target for IDE = CODE_BLOCKS mode, it will clean bin/Debug and obj/Debug
+#	- [cleanAll]: This target will clean all known builds, such as: build/ directory for ECLIPSE and NO_IDE,
+#	and bin/ and obj/ dirs for CODE_BLOCKS
+#	- [createRunScript]: Create bash script named run/debug (build context based) to run application, the output of the
+#	run/debug script is the project root dir, invoking this target requires sudo password to setup permissions
+#	- [createBuildAndRunScript]: Create bash script named run/debug (build context based) to build and run application.
+#	- [check]: internal usage
+#	- [test]: internal usage
+#	-
+#	-
 #
 #	Bugs and cons:
-#	- For NO_IDE and for IDE=ECLIPSE, this script supports multi target execution at one, 
+#	- For NO_IDE and for IDE=ECLIPSE, this script supports multi target execution at once, 
 #	e.g: make clean all
 #	but for IDE=CODE_BLOCKS mode, only single target is supported
 #	- The script will compile every single source file individually, that comes as tread-off with
@@ -63,15 +73,16 @@
 
 ################# for IDE's, use ECLIPSE or CODE_BLOCKS
 #IDE:=CODE_BLOCKS
-IDE:=ECLIPSE
+#IDE:=ECLIPSE
 ################# for non-IDE's, specify NO_IDE, either run or debug
-#NO_IDE:=run
+NO_IDE:=run
 #NO_IDE:=debug
 ################
 CXX := g++
 INCLUDE_LIBRARY := glfw3 glew
 CXXFLAGS_DEBUG := -g -Wall -Wextra -Wno-unused-parameter 
-CXXFLAGS_BUILD := -O0 -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable
+CXXFLAGS_BUILD := -O0 -save-temps=obj -Wall -Wextra -Wno-unused-parameter
+BASH_SHELL := /bin/bash
 ################
 ################
 ################
@@ -119,15 +130,15 @@ INCLUDE_LIBRARY_LIBS_FLAGS := $(shell pkg-config --libs $(INCLUDE_LIBRARY))
 #####
 ##### DEFAULT (NO_IDE) SETUP
 #####
-DEFAULT_CLEAN_DIRS :=
 DEFAULT_BUILD_DIR := $(PROJECT_DIR)/$(BUILD_DIR_NAME)
-
+DEFAULT_CLEAN_DIRS :=
 ifeq ($(NO_IDE),run)
 	CXXFLAGS += $(CXXFLAGS_BUILD)
 else ifeq ($(NO_IDE),debug)
 	DEFAULT_BUILD_DIR := $(PROJECT_DIR)/$(DEBUG_DIR_NAME)
 	CXXFLAGS += $(CXXFLAGS_DEBUG)
 endif
+
 
 DEFAULT_CLEAN_DIRS := $(DEFAULT_BUILD_DIR)
 DEFAULT_BUILD_OBJ_DIR := $(DEFAULT_BUILD_DIR)/$(OBJ_DIR_NAME)
@@ -144,21 +155,17 @@ INCLUDE_DIR := $(PROJECT_DIR)/include
 INCLUDE_DIR_FLAGS := $(addprefix -I,$(INCLUDE_DIR))
 CPPFLAGS ?= $(INCLUDE_DIR_FLAGS)
 EXCEPTION_MSG:=
-
+EXECUTABLE_BASH_SCRIPT_NAME := $(NO_IDE)
 
 ifeq ($(IDE),ECLIPSE)
 	BUILD_MODE ?= run
+	EXECUTABLE_BASH_SCRIPT_NAME := $(BUILD_MODE)
 	ifeq ($(BUILD_MODE),run)
 		DEFAULT_BUILD_DIR := $(DEFAULT_BUILD_DIR)/default
 		CXXFLAGS += $(CXXFLAGS_BUILD)
 	else ifeq ($(BUILD_MODE),debug)
 		DEFAULT_BUILD_DIR := $(DEFAULT_BUILD_DIR)/make.debug.linux.x86_64
 		CXXFLAGS += $(CXXFLAGS_DEBUG)
-	else ifeq ($(BUILD_MODE),linuxtools)
-		CFLAGS += -g -pg -fprofile-arcs -ftest-coverage
-		LDFLAGS += -pg -fprofile-arcs -ftest-coverage
-		EXTRA_CLEAN += $(PROJECT_NAME).gcda $(PROJECT_NAME).gcno $(PROJECT_ROOT)gmon.out
-		EXTRA_CMDS = rm -rf $(PROJECT_NAME).gcda
 	else
 		EXCEPTION_MSG:=ECLIPSE BUILD_MODE=$(BUILD_MODE) not supported by this Makefile, you can use [run, debug or linuxtools]
 	endif
@@ -174,11 +181,13 @@ else ifeq ($(IDE),CODE_BLOCKS)
 		TEMP_OBJ_DIR_HOLDER := $(PROJECT_DIR)/obj/Release
 		DEFAULT_BUILD_TARGET := $(DEFAULT_BUILD_DIR)/$(TARGET_FILE_NAME)
 		CXXFLAGS += $(CXXFLAGS_BUILD)
+		EXECUTABLE_BASH_SCRIPT_NAME := run
 	else ifeq ($(MAKECMDGOALS),$(filter $(MAKECMDGOALS),Debug cleanDebug))
 		DEFAULT_BUILD_DIR := $(PROJECT_DIR)/bin/Debug
 		TEMP_OBJ_DIR_HOLDER := $(PROJECT_DIR)/obj/Debug
 		DEFAULT_BUILD_TARGET := $(DEFAULT_BUILD_DIR)/$(TARGET_FILE_NAME)
 		CXXFLAGS += $(CXXFLAGS_DEBUG)
+		EXECUTABLE_BASH_SCRIPT_NAME := debug
 	else
 		EXCEPTION_MSG:=CODE_BLOCK target=$(MAKECMDGOALS) not supported by this Makefile, you can use [Release, Debug, cleanRelease and cleanDebug] for the main time this Makefile does not supports multiple targets execution, if you have requested more than one, please retry with one target at time
 	endif
@@ -190,9 +199,10 @@ endif
 #####
 
 
+DEFAULT_CLEAN_ALL_DIRS := $(PROJECT_DIR)/$(BUILD_DIR_NAME) $(PROJECT_DIR)/$(DEBUG_DIR_NAME) $(PROJECT_DIR)/bin $(PROJECT_DIR)/obj
+
 
 all: check $(DEFAULT_BUILD_TARGET)
-
 debug: all
 
 ################# CODE::BLOCKS SPECIFIC SETUP
@@ -200,7 +210,17 @@ Release: all
 Debug: debug
 cleanRelease: clean
 cleanDebug: clean
-#####
+createRunScript:
+	$(eval run_script:=$(PROJECT_DIR)/$(EXECUTABLE_BASH_SCRIPT_NAME))
+	$(shell echo "#!$(BASH_SHELL)\n$(DEFAULT_BUILD_TARGET)\n" > $(run_script))	
+	$(shell sudo chmod +x $(run_script))
+	@echo "executable bash script created: $(run_script)"
+##### clear && make -j all && clear && $(DEFAULT_BUILD_TARGET)
+createBuildAndRunScript:
+	$(eval run_script:=$(PROJECT_DIR)/$(EXECUTABLE_BASH_SCRIPT_NAME))
+	$(shell echo "#!$(BASH_SHELL)\n clear && make -j all && clear && $(DEFAULT_BUILD_TARGET)" > $(run_script))	
+	$(shell sudo chmod +x $(run_script))
+	@echo "executable bash script created: $(run_script)"
 #####
 #####
 
@@ -286,6 +306,9 @@ test: check
 
 .PHONY: all clean
 clean:
-	rm -rf $(DEFAULT_CLEAN_DIRS)
+	rm -rf $(DEFAULT_CLEAN_DIRS) $(PROJECT_DIR)/$(EXECUTABLE_BASH_SCRIPT_NAME)
+	
+cleanAll:
+	rm -rf $(DEFAULT_CLEAN_ALL_DIRS) $(PROJECT_DIR)/$(EXECUTABLE_BASH_SCRIPT_NAME)
 
 
