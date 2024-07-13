@@ -8,7 +8,8 @@
 #ifndef LOGS_LOGGER_H_
 #define LOGS_LOGGER_H_
 #include <iostream>
-
+#include <string.h>
+#include <ctime>
 namespace logs {
 enum LogLevel {
 	INFO, DEBUG
@@ -18,9 +19,10 @@ private:
 	Logger(){};
 public:
 
-	void info(const char *msg);
-	void debug(const char *msg);
-	void log(logs::LogLevel level, const char *msg);
+	static const char *getTimestamp();
+	static void info(const std::string &msg);
+	static void debug(const std::string &msg);
+	static void log(logs::LogLevel level, const std::string &msg);
 	Logger(const Logger&) = delete;
 	virtual ~Logger();
 
@@ -30,17 +32,6 @@ public:
 	}
 
 
-//	inline static void inf(const char *msg){
-//		Logger::log(logs::LogLevel::INFO, msg);
-//	}
-//
-//	inline static void debug(const char *msg){
-//		Logger::log(logs::LogLevel::DEBUG, msg);
-//	}
-//
-//	inline static void log(logs::LogLevel level, const char *msg){
-//		get().log(level, msg);
-//	}
 };
 
 }
