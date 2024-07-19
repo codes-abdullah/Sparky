@@ -51,11 +51,12 @@ std::string buildMessage(const char *level, const std::string &msg) {
 }
 
 std::string getTimestamp() {
-	std::time_t time = std::time(nullptr);
-	std::tm *tmtime = std::gmtime(&time);
-	char str[std::size("hh:mm:ssZ")];
-	std::strftime(str, std::size(str), "%T", tmtime);
-	return std::string(str);
+//	std::time_t time = std::time(nullptr);
+//	std::tm *tmtime = std::gmtime(&time);
+//	char str[std::size("hh:mm:ssZ")];
+//	std::strftime(str, std::size(str), "%T", tmtime);
+//	return std::string(str);
+	return std::string("");
 }
 
 }

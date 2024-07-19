@@ -14,8 +14,8 @@ using namespace logs;
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
 		int mods);
-
 void window_size_callback(GLFWwindow *window, int width, int height);
+void error_callback(int error, const char *description);
 
 Window::Window(const char *title, int width, int height) {
 	this->title = title;
@@ -47,7 +47,13 @@ Window::Window(const char *title, int width, int height) {
 		return;
 	}
 
+//	sparky::graphics::Window::SINGLETON = this;
+	getInstance(window);
+
 	//========================
+
+	Logger::debug(
+			std::string("CXX version: ").append(std::to_string(__cplusplus)));
 	Logger::debug(
 			std::string("GL version: ").append(
 					(const char*) glGetString(GL_VERSION)));
@@ -88,6 +94,10 @@ void window_size_callback(GLFWwindow *window, int width, int height) {
 	Logger::debug(
 			"window size changed: " + std::to_string(width) + "x"
 					+ std::to_string(height));
+}
+
+void error_callback(int error, const char *description) {
+	Logger::error(std::string(description));
 }
 
 } //graphics

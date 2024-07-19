@@ -15,13 +15,14 @@
 namespace sparky {
 namespace graphics {
 class Window {
+protected:
 private:
-
 	const char *title;
 	int width, height;
 	GLFWwindow *window;
 	static bool KEYS[MAX_KEYS];
 	static bool MOUSE_BUTTONS[MAX_MOUSE_BUTTONS];
+	static Window *SINGLETON;
 
 public:
 	Window(const char *title, int width, int height);
@@ -30,12 +31,15 @@ public:
 	bool isClosed() const;
 	void clear() const;
 	void close();
-	static void error_callback(int error, const char *description) {
-		logs::Logger::error(std::string(description));
+	static Window* getInstance(GLFWwindow *window){
+		return SINGLETON;
 	}
+
 protected:
-	bool is_closed= false;
+	bool is_closed = false;
 };
 }
 }
+
+sparky::graphics::Window sparky::graphics::Window::SINGLETON = nullptr;
 #endif /* GRAPHICS_WINDOW_H_ */
