@@ -11,17 +11,21 @@
 #include <string.h>
 #include <ctime>
 namespace logs {
+constexpr const char *INFO_LOG_LEVEL = "INFO";
+constexpr const char *DEBUG_LOG_LEVEL = "DEBUG";
+constexpr const char *ERROR_LOG_LEVEL = "ERROR";
 enum LogLevel {
-	INFO, DEBUG
+	INFO, DEBUG, ERROR
 };
 class Logger {
 private:
 	Logger(){};
 public:
 
-	static const char *getTimestamp();
+
 	static void info(const std::string &msg);
 	static void debug(const std::string &msg);
+	static void error(const std::string &msg);
 	static void log(logs::LogLevel level, const std::string &msg);
 	Logger(const Logger&) = delete;
 	virtual ~Logger();
