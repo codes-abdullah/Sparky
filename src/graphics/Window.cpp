@@ -12,7 +12,10 @@ namespace graphics {
 
 using namespace logs;
 
-
+bool Window::KEYS[MAX_KEYS];
+bool Window::MOUSE_BUTTONS[MAX_MOUSE_BUTTONS];
+double Window::my;
+double Window::mx;
 
 Window::Window(const char *title, int width, int height) {
 	this->title = title;
@@ -36,8 +39,11 @@ Window::Window(const char *title, int width, int height) {
 	glfwMakeContextCurrent(this->window);
 	glfwSetWindowSizeCallback(window, onResizeEvent);
 	glfwSetKeyCallback(this->window, onKeyEvent);
+	glfwSetMouseButtonCallback(this->window, onMouseButtonEvent);
+	//=============
 	//This must be always after glfwMakeContextCurrent
 	//glew will ensure to load the new version of GL
+	//=============
 	if (glewInit() != GLEW_OK) {
 		Logger::error("GLEW init failed");
 		close();
@@ -47,6 +53,14 @@ Window::Window(const char *title, int width, int height) {
 	glfwSetWindowUserPointer(this->window, this);
 //	getInstance(window);
 
+	for (int i = 0; i < MAX_KEYS; i++) {
+		KEYS[i] = false;
+	}
+
+	for (int i = 0; i < MAX_MOUSE_BUTTONS; i++) {
+		MOUSE_BUTTONS[i] = false;
+	}
+
 	//========================
 
 	Logger::debug(
@@ -55,6 +69,18 @@ Window::Window(const char *title, int width, int height) {
 			std::string("GL version: ").append(
 					(const char*) glGetString(GL_VERSION)));
 	Logger::debug(std::string("GLFW version: ").append(glfwGetVersionString()));
+}
+
+bool Window::isKeyPressed(unsigned int keycode) {
+	if (keycode > MAX_KEYS)
+		return false;
+	return KEYS[keycode];
+}
+
+bool Window::isMouseButtonPressed(unsigned int keycode) {
+	if (keycode > MAX_MOUSE_BUTTONS)
+		return false;
+	return MOUSE_BUTTONS[keycode];
 }
 
 Window::~Window() {
@@ -82,9 +108,17 @@ void Window::close() {
 
 void Window::onKeyEvent(GLFWwindow *window, int key, int scancode, int action,
 		int mods) {
-	Window *w = (Window*)glfwGetWindowUserPointer(window);
+	//Window *w = (Window*)glfwGetWindowUserPointer(window);
+	Logger::debug(std::string("KEY_EVENT: ").append(std::to_string(key)));
+	KEYS[key] = action != GLFW_RELEASE;
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
+
+void Window::onMouseButtonEvent(GLFWwindow *window, int button, int action,
+		int mods) {
+	Logger::debug(std::string("MOUSE_EVENT: ").append(std::to_string(button)));
+	MOUSE_BUTTONS[button] = action != GLFW_RELEASE;
 }
 
 void Window::onResizeEvent(GLFWwindow *window, int width, int height) {
@@ -96,6 +130,7 @@ void Window::onResizeEvent(GLFWwindow *window, int width, int height) {
 
 void Window::onErrorEvent(int error, const char *description) {
 	Logger::error(std::string(description));
+	errorListener(this->window, error, std::string(description));
 }
 
 } //graphics
