@@ -12,10 +12,7 @@ namespace graphics {
 
 using namespace logs;
 
-void key_callback(GLFWwindow *window, int key, int scancode, int action,
-		int mods);
-void window_size_callback(GLFWwindow *window, int width, int height);
-void error_callback(int error, const char *description);
+
 
 Window::Window(const char *title, int width, int height) {
 	this->title = title;
@@ -27,7 +24,7 @@ Window::Window(const char *title, int width, int height) {
 		return;
 	}
 
-	glfwSetErrorCallback(error_callback);
+	glfwSetErrorCallback(onErrorEvent);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 	this->window = glfwCreateWindow(width, height, title, NULL, NULL);
 	if (!window) {
@@ -37,8 +34,8 @@ Window::Window(const char *title, int width, int height) {
 	}
 
 	glfwMakeContextCurrent(this->window);
-	glfwSetWindowSizeCallback(window, window_size_callback);
-	glfwSetKeyCallback(this->window, key_callback);
+	glfwSetWindowSizeCallback(window, onResizeEvent);
+	glfwSetKeyCallback(this->window, onKeyEvent);
 	//This must be always after glfwMakeContextCurrent
 	//glew will ensure to load the new version of GL
 	if (glewInit() != GLEW_OK) {
@@ -47,8 +44,8 @@ Window::Window(const char *title, int width, int height) {
 		return;
 	}
 
-//	sparky::graphics::Window::SINGLETON = this;
-	getInstance(window);
+	glfwSetWindowUserPointer(this->window, this);
+//	getInstance(window);
 
 	//========================
 
@@ -83,20 +80,21 @@ void Window::close() {
 	Logger::debug("Closing Window instance...");
 }
 
-void key_callback(GLFWwindow *window, int key, int scancode, int action,
+void Window::onKeyEvent(GLFWwindow *window, int key, int scancode, int action,
 		int mods) {
+	Window *w = (Window*)glfwGetWindowUserPointer(window);
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
-void window_size_callback(GLFWwindow *window, int width, int height) {
+void Window::onResizeEvent(GLFWwindow *window, int width, int height) {
 	glViewport(0, 0, width, height);
 	Logger::debug(
 			"window size changed: " + std::to_string(width) + "x"
 					+ std::to_string(height));
 }
 
-void error_callback(int error, const char *description) {
+void Window::onErrorEvent(int error, const char *description) {
 	Logger::error(std::string(description));
 }
 

@@ -7,6 +7,7 @@ using namespace logs;
 
 int main() {
 	sparky::graphics::Window w("main", 450, 450);
+
 	glClearColor(0.3f, 0.4f, 0.5f, 1.0);
 	while(!w.isClosed()){
 		w.clear();

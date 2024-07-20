@@ -22,18 +22,20 @@ private:
 	GLFWwindow *window;
 	static bool KEYS[MAX_KEYS];
 	static bool MOUSE_BUTTONS[MAX_MOUSE_BUTTONS];
-	static Window *SINGLETON;
 
 public:
+
 	Window(const char *title, int width, int height);
 	~Window();
 	void update();
 	bool isClosed() const;
 	void clear() const;
 	void close();
-	static Window* getInstance(GLFWwindow *window){
-		return SINGLETON;
-	}
+	static void onKeyEvent(GLFWwindow *window, int key, int scancode, int action,
+			int mods);
+	static void onResizeEvent(GLFWwindow *window, int width, int height);
+	static void onErrorEvent(int error, const char *description);
+protected:
 
 protected:
 	bool is_closed = false;
@@ -41,5 +43,5 @@ protected:
 }
 }
 
-sparky::graphics::Window sparky::graphics::Window::SINGLETON = nullptr;
+
 #endif /* GRAPHICS_WINDOW_H_ */
